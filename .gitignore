@@ -1,1 +1,17 @@
 /venv
+/__pychache__/
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+*.log
+*.env
+*.csv
+*.json
+*.xlsx
+*.zip
+*.tar.gz
+*.egg-info/
+dist/
+build/

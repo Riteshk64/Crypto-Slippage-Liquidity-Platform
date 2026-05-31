@@ -1,32 +1,23 @@
 import asyncio
 import json
+from typing import Any
+
 import websockets
 
-async def stream():
-    url = "wss://stream.binance.com:9443/ws/btcusdt@depth20@100ms"
+from storage.state import orderbook
 
-    orderbook = {
-        "bids": [],
-        "asks": []
-    }
+
+async def stream() -> None:
+    url: str = "wss://stream.binance.com:9443/ws/btcusdt@depth20@100ms"
 
     async with websockets.connect(url) as ws:
         while True:
-            msg = await ws.recv()
-            data = json.loads(msg)
+            msg: str = await ws.recv()
+            data: dict[str, Any] = json.loads(msg)
 
             orderbook["bids"] = data["bids"]
             orderbook["asks"] = data["asks"]
 
-            best_bid = float(orderbook["bids"][0][0])
-            best_ask = float(orderbook["asks"][0][0])
 
-            spread = best_ask - best_bid
-
-            print(
-                f"Bid: {best_bid} | "
-                f"Ask: {best_ask} | "
-                f"Spread: {spread}"
-            )
-
-asyncio.run(stream())
+if __name__ == "__main__":
+    asyncio.run(stream())
