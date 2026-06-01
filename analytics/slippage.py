@@ -1,6 +1,17 @@
 from typing import Any
 
-def estimate_buy_slippage(orderbook: dict[str, Any], usd_size: float) -> dict[str, float]:
+
+def estimate_buy_slippage(
+    orderbook: dict[str, Any],
+    usd_size: float,
+) -> dict[str, float]:
+
+    if usd_size <= 0:
+        raise ValueError("usd_size must be positive")
+
+    if not orderbook["asks"]:
+        raise ValueError("No ask liquidity available")
+
     remaining: float = usd_size
     btc_bought: float = 0.0
 
@@ -26,12 +37,16 @@ def estimate_buy_slippage(orderbook: dict[str, Any], usd_size: float) -> dict[st
 
     best_ask: float = float(orderbook["asks"][0][0])
 
-    slippage_bps: float = ((avg_price - best_ask) / best_ask) * 10000
+    slippage_bps: float = (
+        (avg_price - best_ask)
+        / best_ask
+    ) * 10000
 
     return {
         "best_ask": best_ask,
         "avg_price": avg_price,
         "filled_usd": filled_usd,
+        "filled_pct": filled_usd / usd_size * 100,
         "unfilled_usd": remaining,
         "slippage_bps": slippage_bps,
     }
