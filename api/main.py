@@ -7,12 +7,21 @@ from analytics.slippage import estimate_buy_slippage
 from ingestion.binance import stream as binance_stream
 from ingestion.kraken import stream as kraken_stream
 from storage.state import (binance_orderbook,kraken_orderbook,)
+from storage.db import connect_db, close_db
+from tasks.persist_spreads import persist_spreads
+import storage.db as db
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    await connect_db()
+
     asyncio.create_task(binance_stream())
     asyncio.create_task(kraken_stream())
+    asyncio.create_task(persist_spreads())
+
     yield
+
+    await close_db()
 
 
 app: FastAPI = FastAPI(lifespan=lifespan)
@@ -115,3 +124,26 @@ def get_spread() -> dict[str, float]:
         "kraken_ask": kraken_ask,
         "spread_bps": spread_bps,
     }
+
+@app.get("/spread/history")
+async def get_spread_history(limit: int = 100,):
+
+    rows = await db.pool.fetch(
+        """
+        SELECT
+            timestamp,
+            spread_bps
+        FROM spreads
+        ORDER BY timestamp DESC
+        LIMIT $1
+        """,
+        limit,
+    )
+
+    return [
+        {
+            "timestamp": row["timestamp"],
+            "spread_bps": row["spread_bps"],
+        }
+        for row in rows
+    ]
