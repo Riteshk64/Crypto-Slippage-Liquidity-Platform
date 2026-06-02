@@ -12,6 +12,7 @@ from tasks.persist_spreads import persist_spreads
 import storage.db as db
 from analytics.spread_stats import get_spread_stats
 from tasks.persist_slippage import persist_slippage
+from analytics.slippage_history import get_slippage_history
 # from analytics.liquidity import calculate_depth
 
 @asynccontextmanager
@@ -181,3 +182,23 @@ async def spread_stats() -> dict[str, float]:
 #     return calculate_depth(
 #         kraken_orderbook
 #     )
+
+@app.get("/slippage-history/{exchange}")
+async def slippage_history(
+    exchange: str,
+    limit: int = 100,
+):
+
+    if exchange not in (
+        "binance",
+        "kraken",
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail="invalid exchange",
+        )
+
+    return await get_slippage_history(
+        exchange,
+        limit,
+    )
