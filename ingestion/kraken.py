@@ -1,11 +1,12 @@
 import asyncio
 import json
 from typing import Any
-
+import logging
 import websockets
 
 from storage.state import kraken_orderbook
 
+logger = logging.getLogger(__name__)
 
 def apply_updates(side: list[list[str]],updates: list[dict[str, Any]],reverse: bool,) -> list[list[str]]:
     levels: dict[str, str] = {
@@ -95,7 +96,7 @@ async def stream() -> None:
                         )
 
         except Exception as exc:
-            print(exc)
+            logger.warning("Kraken websocket error: %s",exc)
 
         await asyncio.sleep(5)
 

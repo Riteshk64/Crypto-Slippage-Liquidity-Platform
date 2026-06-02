@@ -1,11 +1,12 @@
 import asyncio
 import json
 from typing import Any
-
+import logging
 import websockets
 
 from storage.state import binance_orderbook
 
+logger = logging.getLogger(__name__)
 
 async def stream() -> None:
     url: str = (
@@ -37,7 +38,7 @@ async def stream() -> None:
                     )
 
         except Exception as exc:
-            print(exc)
+            logger.warning("Binance websocket error: %s",exc)
 
         await asyncio.sleep(5)
 

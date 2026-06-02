@@ -1,4 +1,5 @@
 import asyncio
+import logging
 
 import storage.db as db
 from storage.state import (
@@ -6,6 +7,8 @@ from storage.state import (
     kraken_orderbook,
 )
 from analytics.spread import calculate_spread
+
+logger = logging.getLogger(__name__)
 
 async def persist_spreads() -> None:
     while True:
@@ -38,6 +41,6 @@ async def persist_spreads() -> None:
                 )
 
         except Exception as exc:
-            print(exc)
+            logger.exception(exc)
 
         await asyncio.sleep(1)

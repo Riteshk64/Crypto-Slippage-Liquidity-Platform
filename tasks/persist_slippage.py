@@ -1,5 +1,5 @@
 import asyncio
-
+import logging
 import storage.db as db
 
 from analytics.slippage import (
@@ -11,6 +11,7 @@ from storage.state import (
     kraken_orderbook,
 )
 
+logger = logging.getLogger(__name__)
 
 async def persist_slippage() -> None:
     while True:
@@ -57,6 +58,6 @@ async def persist_slippage() -> None:
                 )
 
         except Exception as exc:
-            print(exc)
+            logger.exception(exc)
 
         await asyncio.sleep(1)
