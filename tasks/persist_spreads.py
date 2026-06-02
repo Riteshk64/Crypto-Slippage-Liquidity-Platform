@@ -5,7 +5,7 @@ from storage.state import (
     binance_orderbook,
     kraken_orderbook,
 )
-
+from analytics.spread import calculate_spread
 
 async def persist_spreads() -> None:
     while True:
@@ -14,26 +14,10 @@ async def persist_spreads() -> None:
                 binance_orderbook["bids"]
                 and kraken_orderbook["bids"]
             ):
-                binance_bid = float(
-                    binance_orderbook["bids"][0][0]
+                spread = calculate_spread(
+                    binance_orderbook,
+                    kraken_orderbook,
                 )
-
-                binance_ask = float(
-                    binance_orderbook["asks"][0][0]
-                )
-
-                kraken_bid = float(
-                    kraken_orderbook["bids"][0][0]
-                )
-
-                kraken_ask = float(
-                    kraken_orderbook["asks"][0][0]
-                )
-
-                spread_bps = (
-                    (kraken_bid - binance_ask)
-                    / binance_ask
-                ) * 10000
 
                 await db.pool.execute(
                     """
@@ -46,11 +30,11 @@ async def persist_spreads() -> None:
                     )
                     VALUES ($1,$2,$3,$4,$5)
                     """,
-                    binance_bid,
-                    binance_ask,
-                    kraken_bid,
-                    kraken_ask,
-                    spread_bps,
+                    spread["binance_bid"],
+                    spread["binance_ask"],
+                    spread["kraken_bid"],
+                    spread["kraken_ask"],
+                    spread["spread_bps"],
                 )
 
         except Exception as exc:

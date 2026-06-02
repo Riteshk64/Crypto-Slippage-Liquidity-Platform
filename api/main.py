@@ -13,7 +13,7 @@ import storage.db as db
 from analytics.spread_stats import get_spread_stats
 from tasks.persist_slippage import persist_slippage
 from analytics.slippage_history import get_slippage_history
-# from analytics.liquidity import calculate_depth
+from analytics.spread import calculate_spread
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -101,37 +101,20 @@ def get_spread() -> dict[str, float]:
             detail="orderbook data unavailable",
         )
 
-    binance_bid: float = float(
-        binance_orderbook["bids"][0][0]
+
+    return calculate_spread(
+        binance_orderbook,
+        kraken_orderbook,
     )
-
-    binance_ask: float = float(
-        binance_orderbook["asks"][0][0]
-    )
-
-    kraken_bid: float = float(
-        kraken_orderbook["bids"][0][0]
-    )
-
-    kraken_ask: float = float(
-        kraken_orderbook["asks"][0][0]
-    )
-
-    spread_bps: float = (
-        (kraken_bid - binance_ask)
-        / binance_ask
-    ) * 10000
-
-    return {
-        "binance_bid": binance_bid,
-        "binance_ask": binance_ask,
-        "kraken_bid": kraken_bid,
-        "kraken_ask": kraken_ask,
-        "spread_bps": spread_bps,
-    }
 
 @app.get("/spread/history")
 async def get_spread_history(limit: int = 100,):
+
+    if limit < 1 or limit > 1000:
+        raise HTTPException(
+            status_code=400,
+            detail="limit must be between 1 and 1000",
+        )
 
     rows = await db.pool.fetch(
         """
@@ -157,37 +140,16 @@ async def get_spread_history(limit: int = 100,):
 async def spread_stats() -> dict[str, float]:
     return await get_spread_stats()
 
-# @app.get("/liquidity/binance")
-# def binance_liquidity() -> dict[str, float]:
-
-#     if not binance_orderbook["asks"]:
-#         raise HTTPException(
-#             status_code=400,
-#             detail="orderbook data unavailable",
-#         )
-
-#     return calculate_depth(
-#         binance_orderbook
-#     )
-
-# @app.get("/liquidity/kraken")
-# def kraken_liquidity() -> dict[str, float]:
-
-#     if not kraken_orderbook["asks"]:
-#         raise HTTPException(
-#             status_code=400,
-#             detail="orderbook data unavailable",
-#         )
-
-#     return calculate_depth(
-#         kraken_orderbook
-#     )
-
 @app.get("/slippage-history/{exchange}")
 async def slippage_history(
     exchange: str,
     limit: int = 100,
 ):
+    if limit < 1 or limit > 1000:
+        raise HTTPException(
+            status_code=400,
+            detail="limit must be between 1 and 1000",
+        )
 
     if exchange not in (
         "binance",
