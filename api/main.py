@@ -10,6 +10,7 @@ from storage.state import (binance_orderbook,kraken_orderbook,)
 from storage.db import connect_db, close_db
 from tasks.persist_spreads import persist_spreads
 import storage.db as db
+from analytics.spread_stats import get_spread_stats
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -147,3 +148,7 @@ async def get_spread_history(limit: int = 100,):
         }
         for row in rows
     ]
+
+@app.get("/spread/stats")
+async def spread_stats() -> dict[str, float]:
+    return await get_spread_stats()
