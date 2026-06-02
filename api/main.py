@@ -11,6 +11,8 @@ from storage.db import connect_db, close_db
 from tasks.persist_spreads import persist_spreads
 import storage.db as db
 from analytics.spread_stats import get_spread_stats
+from tasks.persist_slippage import persist_slippage
+# from analytics.liquidity import calculate_depth
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -19,6 +21,7 @@ async def lifespan(app: FastAPI):
     asyncio.create_task(binance_stream())
     asyncio.create_task(kraken_stream())
     asyncio.create_task(persist_spreads())
+    asyncio.create_task(persist_slippage())
 
     yield
 
@@ -152,3 +155,29 @@ async def get_spread_history(limit: int = 100,):
 @app.get("/spread/stats")
 async def spread_stats() -> dict[str, float]:
     return await get_spread_stats()
+
+# @app.get("/liquidity/binance")
+# def binance_liquidity() -> dict[str, float]:
+
+#     if not binance_orderbook["asks"]:
+#         raise HTTPException(
+#             status_code=400,
+#             detail="orderbook data unavailable",
+#         )
+
+#     return calculate_depth(
+#         binance_orderbook
+#     )
+
+# @app.get("/liquidity/kraken")
+# def kraken_liquidity() -> dict[str, float]:
+
+#     if not kraken_orderbook["asks"]:
+#         raise HTTPException(
+#             status_code=400,
+#             detail="orderbook data unavailable",
+#         )
+
+#     return calculate_depth(
+#         kraken_orderbook
+#     )
