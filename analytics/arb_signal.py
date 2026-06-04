@@ -41,8 +41,16 @@ def get_arb_signal(
         )
         current_spread = buy_kraken
 
-    if current_signal == signal_state["signal"]:
+    if current_signal is None:
+        signal_state["signal"] = None
+        signal_state["count"] = 0
+
+    elif current_signal == signal_state["signal"]:
         signal_state["count"] += 1
+
+    else:
+        signal_state["signal"] = current_signal
+        signal_state["count"] = 1
 
     else:
         signal_state["signal"] = current_signal
