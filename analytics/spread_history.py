@@ -1,7 +1,7 @@
 import storage.db as db
 
 
-async def get_spread_history(
+async def fetch_spread_history(
     limit: int,
 ) -> list[dict]:
 

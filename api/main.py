@@ -15,7 +15,7 @@ from analytics.spread_stats import get_spread_stats
 from tasks.persist_slippage import persist_slippage
 from analytics.slippage_history import get_slippage_history
 from analytics.spread import calculate_spread
-from analytics.spread_history import get_spread_history
+from analytics.spread_history import fetch_spread_history
 from analytics.arb_signal import get_arb_signal
 
 @asynccontextmanager
@@ -129,7 +129,7 @@ async def get_spread_history(limit: int = 100,):
             detail="limit must be between 1 and 1000",
         )
 
-    return await get_spread_history(
+    return await fetch_spread_history(
         limit,
     )
 
