@@ -17,6 +17,7 @@ from analytics.slippage_history import get_slippage_history
 from analytics.spread import calculate_spread
 from analytics.spread_history import fetch_spread_history
 from analytics.arb_signal import get_arb_signal
+from analytics.liquidity import calculate_liquidity
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -184,3 +185,32 @@ def arb_signal():
         binance_orderbook,
         kraken_orderbook,
     )
+
+@app.get("/liquidity")
+def liquidity():
+
+    return {
+        "binance": calculate_liquidity(
+            binance_orderbook
+        ),
+        "kraken": calculate_liquidity(
+            kraken_orderbook
+        ),
+    }
+
+@app.get("/debug/binance")
+def debug_binance():
+    return binance_orderbook
+
+@app.get("/debug/kraken")
+def debug_kraken():
+    return kraken_orderbook
+
+@app.get("/debug/liquidity")
+def debug_liquidity():
+    return {
+        "binance_asks": [
+            float(price) * float(qty)
+            for price, qty in binance_orderbook["asks"][:10]
+        ]
+    }
