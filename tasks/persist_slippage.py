@@ -1,6 +1,6 @@
 import asyncio
 import logging
-import storage.db as db
+from storage.db import get_pool
 
 from analytics.slippage import (
     estimate_buy_slippage,
@@ -14,6 +14,7 @@ from storage.state import (
 logger = logging.getLogger(__name__)
 
 async def persist_slippage() -> None:
+    pool = get_pool()
     while True:
         try:
             exchanges = {
@@ -41,7 +42,7 @@ async def persist_slippage() -> None:
                     100000,
                 )["slippage_bps"]
 
-                await db.pool.execute(
+                await pool.execute(
                     """
                     INSERT INTO slippage_snapshots (
                         exchange,

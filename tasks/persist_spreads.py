@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-import storage.db as db
+from storage.db import get_pool
 from storage.state import (
     binance_orderbook,
     kraken_orderbook,
@@ -11,6 +11,7 @@ from analytics.spread import calculate_spread
 logger = logging.getLogger(__name__)
 
 async def persist_spreads() -> None:
+    pool = get_pool()
     while True:
         try:
             if (
@@ -22,7 +23,7 @@ async def persist_spreads() -> None:
                     kraken_orderbook,
                 )
 
-                await db.pool.execute(
+                await pool.execute(
                     """
                     INSERT INTO spreads (
                         binance_bid,

@@ -25,17 +25,16 @@ async def stream() -> None:
                 while True:
                     msg: str = await ws.recv()
 
-                    data: dict[str, Any] = json.loads(
-                        msg
-                    )
+                    data: dict[str, Any] = json.loads(msg)
 
-                    binance_orderbook["bids"] = (
-                        data["bids"]
-                    )
+                    if (
+                        "bids" not in data
+                        or "asks" not in data
+                    ):
+                        continue
 
-                    binance_orderbook["asks"] = (
-                        data["asks"]
-                    )
+                    binance_orderbook["bids"] = (data["bids"])
+                    binance_orderbook["asks"] = (data["asks"])
 
         except Exception as exc:
             logger.warning("Binance websocket error: %s",exc)

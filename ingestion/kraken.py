@@ -66,6 +66,12 @@ async def stream() -> None:
                     if data.get("channel") != "book":
                         continue
 
+                    if "data" not in data:
+                        continue
+
+                    if not data["data"]:
+                        continue
+
                     book: dict[str, Any] = data["data"][0]
 
                     if data["type"] == "snapshot":

@@ -40,6 +40,9 @@ def estimate_buy_slippage(
 
     slippage_bps: float = ((avg_price - best_ask) / best_ask) * 10000
 
+    if abs(slippage_bps) < 1e-6:
+        slippage_bps = 0.0
+
     return {
         "best_ask": best_ask,
         "avg_price": avg_price,

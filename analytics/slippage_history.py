@@ -1,4 +1,4 @@
-import storage.db as db
+from storage.db import get_pool
 
 
 async def get_slippage_history(
@@ -6,7 +6,8 @@ async def get_slippage_history(
     limit: int,
 ) -> list[dict]:
 
-    rows = await db.pool.fetch(
+    pool = get_pool()
+    rows = await pool.fetch(
         """
         SELECT
             timestamp,

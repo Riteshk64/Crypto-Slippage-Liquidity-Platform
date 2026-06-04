@@ -23,3 +23,12 @@ async def close_db() -> None:
 
     if pool:
         await pool.close()
+
+
+def get_pool():
+    if pool is None:
+        raise RuntimeError(
+            "Database pool not initialized"
+        )
+
+    return pool

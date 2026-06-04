@@ -1,7 +1,8 @@
-import storage.db as db
+from storage.db import get_pool
 
 async def get_spread_stats() -> dict[str, float]:
-    row = await db.pool.fetchrow(
+    pool = get_pool()
+    row = await pool.fetchrow(
         """
         SELECT
             AVG(spread_bps) AS avg_spread,
