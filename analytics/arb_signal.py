@@ -52,12 +52,6 @@ def get_arb_signal(
         signal_state["signal"] = current_signal
         signal_state["count"] = 1
 
-    else:
-        signal_state["signal"] = current_signal
-        signal_state["count"] = (
-            1 if current_signal else 0
-        )
-
     return {
         "signal": current_signal or "none",
         "spread_bps": current_spread,
