@@ -1,6 +1,7 @@
 from analytics.spread import calculate_spread
 from analytics.arb_state import signal_state
 
+
 def get_arb_signal(
     binance_orderbook,
     kraken_orderbook,
@@ -20,6 +21,11 @@ def get_arb_signal(
         "buy_kraken_sell_binance_bps"
     ]
 
+    best_spread = max(
+        buy_binance,
+        buy_kraken,
+    )
+
     current_signal = None
     current_spread = 0.0
 
@@ -35,7 +41,6 @@ def get_arb_signal(
         )
         current_spread = buy_kraken
 
-
     if current_signal == signal_state["signal"]:
         signal_state["count"] += 1
 
@@ -45,10 +50,10 @@ def get_arb_signal(
             1 if current_signal else 0
         )
 
-
     return {
         "signal": current_signal or "none",
         "spread_bps": current_spread,
+        "current_best_spread_bps": best_spread,
         "threshold_bps": threshold_bps,
         "consecutive_observations": signal_state["count"],
         "confirmed": signal_state["count"] >= 5,
