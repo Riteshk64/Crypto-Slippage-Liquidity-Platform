@@ -22,9 +22,14 @@ def calculate_spread(
         kraken_orderbook["asks"][0][0]
     )
 
-    spread_bps = (
+    buy_binance_sell_kraken_bps = (
         (kraken_bid - binance_ask)
         / binance_ask
+    ) * 10000
+
+    buy_kraken_sell_binance_bps = (
+        (binance_bid - kraken_ask)
+        / kraken_ask
     ) * 10000
 
     return {
@@ -32,5 +37,6 @@ def calculate_spread(
         "binance_ask": binance_ask,
         "kraken_bid": kraken_bid,
         "kraken_ask": kraken_ask,
-        "spread_bps": spread_bps,
+        "buy_binance_sell_kraken_bps": buy_binance_sell_kraken_bps,
+        "buy_kraken_sell_binance_bps": buy_kraken_sell_binance_bps,
     }

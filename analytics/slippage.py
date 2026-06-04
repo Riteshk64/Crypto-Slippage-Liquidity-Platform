@@ -33,20 +33,19 @@ def estimate_buy_slippage(
         raise ValueError("No ask liquidity available")
 
     filled_usd: float = usd_size - remaining
+    is_fully_filled: bool = remaining == 0
     avg_price: float = filled_usd / btc_bought
 
     best_ask: float = float(orderbook["asks"][0][0])
 
-    slippage_bps: float = (
-        (avg_price - best_ask)
-        / best_ask
-    ) * 10000
+    slippage_bps: float = ((avg_price - best_ask) / best_ask) * 10000
 
     return {
         "best_ask": best_ask,
         "avg_price": avg_price,
         "filled_usd": filled_usd,
         "filled_pct": filled_usd / usd_size * 100,
+        "is_fully_filled": is_fully_filled,
         "unfilled_usd": remaining,
         "slippage_bps": slippage_bps,
     }

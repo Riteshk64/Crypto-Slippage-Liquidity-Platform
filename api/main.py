@@ -2,6 +2,7 @@ import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI,HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 
 from analytics.slippage import estimate_buy_slippage
 from ingestion.binance import stream as binance_stream
@@ -14,6 +15,7 @@ from analytics.spread_stats import get_spread_stats
 from tasks.persist_slippage import persist_slippage
 from analytics.slippage_history import get_slippage_history
 from analytics.spread import calculate_spread
+from analytics.spread_history import get_spread_history
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -30,6 +32,16 @@ async def lifespan(app: FastAPI):
 
 
 app: FastAPI = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/binance/orderbook")
@@ -116,25 +128,9 @@ async def get_spread_history(limit: int = 100,):
             detail="limit must be between 1 and 1000",
         )
 
-    rows = await db.pool.fetch(
-        """
-        SELECT
-            timestamp,
-            spread_bps
-        FROM spreads
-        ORDER BY timestamp DESC
-        LIMIT $1
-        """,
+    return await get_spread_history(
         limit,
     )
-
-    return [
-        {
-            "timestamp": row["timestamp"],
-            "spread_bps": row["spread_bps"],
-        }
-        for row in rows
-    ]
 
 @app.get("/spread/stats")
 async def spread_stats() -> dict[str, float]:

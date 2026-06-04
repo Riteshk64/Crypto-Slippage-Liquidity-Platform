@@ -11,9 +11,8 @@
 - Python
 - FastAPI
 - PostgreSQL
-- TimescaleDB
 - WebSockets
-- React
+- Next.js
 
 ## Setup
 

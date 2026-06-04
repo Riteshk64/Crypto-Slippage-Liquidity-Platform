@@ -29,15 +29,17 @@ async def persist_spreads() -> None:
                         binance_ask,
                         kraken_bid,
                         kraken_ask,
-                        spread_bps
+                        buy_binance_sell_kraken_bps,
+                        buy_kraken_sell_binance_bps
                     )
-                    VALUES ($1,$2,$3,$4,$5)
+                    VALUES ($1,$2,$3,$4,$5,$6)
                     """,
                     spread["binance_bid"],
                     spread["binance_ask"],
                     spread["kraken_bid"],
                     spread["kraken_ask"],
-                    spread["spread_bps"],
+                    spread["buy_binance_sell_kraken_bps"],
+                    spread["buy_kraken_sell_binance_bps"],
                 )
 
         except Exception as exc:
