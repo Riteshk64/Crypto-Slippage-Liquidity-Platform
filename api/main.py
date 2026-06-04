@@ -16,6 +16,7 @@ from tasks.persist_slippage import persist_slippage
 from analytics.slippage_history import get_slippage_history
 from analytics.spread import calculate_spread
 from analytics.spread_history import get_spread_history
+from analytics.arb_signal import get_arb_signal
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -159,4 +160,21 @@ async def slippage_history(
     return await get_slippage_history(
         exchange,
         limit,
+    )
+
+@app.get("/arb-signal")
+def arb_signal():
+
+    if (
+        not binance_orderbook["bids"]
+        or not kraken_orderbook["bids"]
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail="orderbook data unavailable",
+        )
+
+    return get_arb_signal(
+        binance_orderbook,
+        kraken_orderbook,
     )
