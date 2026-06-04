@@ -197,20 +197,3 @@ def liquidity():
             kraken_orderbook
         ),
     }
-
-@app.get("/debug/binance")
-def debug_binance():
-    return binance_orderbook
-
-@app.get("/debug/kraken")
-def debug_kraken():
-    return kraken_orderbook
-
-@app.get("/debug/liquidity")
-def debug_liquidity():
-    return {
-        "binance_asks": [
-            float(price) * float(qty)
-            for price, qty in binance_orderbook["asks"][:10]
-        ]
-    }
